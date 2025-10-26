@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const getAll = async (pageIndex = 1, pageSize = 10) => {
   const skip = (pageIndex - 1) * pageSize;
@@ -32,17 +33,34 @@ const register = async (data) => {
 
 const login = async (email, password) => {
   const user = await User.findOne({ email });
-  if (!user) return {
-    message: "Không tìm thấy người dùng với email này"
-  };
+  if (!user) {
+    return { error: true, message: "Email hoặc mật khẩu không chính xác" };
+  }
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return {
-    message: "Mật khẩu không chính xác"
+  if (!isMatch) {
+    return { error: true, message: "Email hoặc mật khẩu không chính xác" };
+  }
+
+  const payload = {
+    id: user._id, 
+    role: user.role,
+    email: user.email
   };
 
+  const token = jwt.sign(
+    payload,
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' } 
+  );
+
   const { password: _, ...userData } = user.toObject();
-  return userData;
+
+  return {
+    error: false,
+    user: userData,
+    token: token
+  };
 };
 
 module.exports = {

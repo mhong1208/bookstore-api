@@ -31,7 +31,8 @@ const loginUser = async (req, res) => {
     if (user) {
       res.json({
         data: user,
-        message: "Đăng nhập thành công"
+        message: "Đăng nhập thành công",
+        token: user.token
       });
     } else {
       res.status(401).json({ message: "Invalid email or password" });
