@@ -19,6 +19,7 @@ const registerUser = async (req, res) => {
       message: "Đăng ký tài khoản thành công"
     });
   } catch (err) {
+    console.error(err);
     res.status(400).json({ message: err.message });
   }
 };
