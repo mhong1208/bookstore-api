@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     address: { type: String, required: false },
     phoneNumber: { type: String, required: false },
     role: { type: String, enum: EUser, default: EUser.CUSTOMER },
-    username: { type: String, required: true, unique: true },
+    username: { type: String, required: false, unique: true },
     password: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
     avatarUrl: { type: String, required: false },
