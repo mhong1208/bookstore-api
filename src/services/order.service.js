@@ -93,7 +93,14 @@ const getAllOrders = async (page = 1, pageSize = 10) => {
   const skip = (page - 1) * pageSize;
   const total = await Order.countDocuments();
   const orders = await Order.find({})
-    .populate('user', 'id name email')
+    .populate('user', 'name email')
+    .populate({
+      path: 'orderItems',
+      populate: {
+        path: 'book',
+        select: 'title price image', 
+      },
+    })
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(pageSize);
