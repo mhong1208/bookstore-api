@@ -1,25 +1,14 @@
-// src/services/category.service.js
-const Category = require("../models/category.model");
+const Category = require('../models/category.model');
 
-const createCategory = async (data) => {
-  return await Category.create(data);
+const create = async (categoryData) => {
+  const category = new Category(categoryData);
+  return await category.save();
 };
 
-const getCategories = async (pageIndex = 1, pageSize = 10) => {
-  const skip = (pageIndex - 1) * pageSize;
-  const categories = await Category.find().skip(skip).limit(pageSize).sort({ createdAt: -1 });
-  const total = await Category.countDocuments();
-  return {
-    data: categories,
-    pageIndex,
-    pageSize,
-    totalPages: Math.ceil(total / pageSize),
-    totalItems: total,
-  };
+const getAll = async () => {
+  return await Category.find({});
 };
 
-const updateCategory = async (id, data) => {
-  return await Category.findByIdAndUpdate(id, data, { new: true, runValidators: true });
-};
+// Các hàm getById, update, delete có thể được thêm vào đây khi cần
 
-module.exports = { createCategory, getCategories, updateCategory };
+module.exports = { create, getAll };

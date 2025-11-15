@@ -21,6 +21,12 @@ const getAll = async (pageIndex = 1, pageSize = 10) => {
 };
 
 const register = async (data) => {
+  // Kiểm tra xem email đã tồn tại chưa
+  const existingUser = await User.findOne({ email: data.email });
+  if (existingUser) {
+    throw new Error("Email đã được sử dụng. Vui lòng chọn một email khác.");
+  }
+
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(data.password, saltRounds);
   const newUser = await User.create({

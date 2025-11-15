@@ -1,37 +1,34 @@
-// src/controllers/category.controller.js
-const categoryService = require("../services/category.service");
+const categoryService = require('../services/category.service');
 
+/**
+ * @desc    Tạo danh mục mới
+ * @route   POST /api/categories
+ * @access  Private/Admin
+ */
 const createCategory = async (req, res) => {
+  const { name, description } = req.body;
   try {
-    const category = await categoryService.createCategory(req.body);
-    res.status(201).json(category);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    const createdCategory = await categoryService.create({ name, description });
+    res.status(201).json(createdCategory);
+  } catch (error) {
+    res.status(400).json({ message: 'Không thể tạo danh mục', error: error.message });
   }
 };
 
-const getCategories = async (req, res) => {
+/**
+ * @desc    Lấy tất cả danh mục
+ * @route   GET /api/categories
+ * @access  Public
+ */
+const getAllCategories = async (req, res) => {
   try {
-    const pageIndex = parseInt(req.query.pageIndex) || 1;
-    const pageSize = parseInt(req.query.pageSize) || 10;
-    const result = await categoryService.getCategories(pageIndex, pageSize);
-    res.json(result);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const categories = await categoryService.getAll();
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
 };
 
-const updateCategory = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedCategory = await categoryService.updateCategory(id, req.body);
-    if (!updatedCategory) {
-      return res.status(404).json({ message: "Không tìm thấy danh mục" });
-    }
-    res.json(updatedCategory);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
+// Các hàm getById, update, delete có thể được viết tương tự như Product
 
-module.exports = { createCategory, getCategories, updateCategory };
+module.exports = { createCategory, getAllCategories };

@@ -1,55 +1,86 @@
-// src/controllers/product.controller.js
-const productService = require("../services/product.service");
+const productService = require('../services/product.service');
 
+/**
+ * @desc    Tạo sản phẩm mới
+ * @route   POST /api/products
+ * @access  Private/Admin
+ */
 const createProduct = async (req, res) => {
   try {
-    const product = await productService.createProduct(req.body);
-    res.status(201).json(product);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    const createdProduct = await productService.create(req.body);
+    res.status(201).json(createdProduct);
+  } catch (error) {
+    res.status(400).json({ message: 'Không thể tạo sản phẩm', error: error.message });
   }
 };
 
-const getProducts = async (req, res) => {
+/**
+ * @desc    Lấy tất cả sản phẩm (có phân trang)
+ * @route   GET /api/products
+ * @access  Public
+ */
+const getAllProducts = async (req, res) => {
   try {
-    const pageIndex = parseInt(req.query.pageIndex) || 1;
-    const pageSize = parseInt(req.query.pageSize) || 10;
-    // optional search filters
-    const name = req.query.name || req.query.title || undefined;
-    // categories can be provided as comma-separated ids or as an array
-    const categories = req.query.categories || req.query.category || undefined;
-    const result = await productService.getProducts(pageIndex, pageSize, { name, categories });
+    const page = Number(req.query.pageNumber) || 1;
+    const pageSize = Number(req.query.pageSize) || 10;
+    const keyword = req.query.keyword || '';
+    const result = await productService.getAll(page, pageSize, keyword);
     res.json(result);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
 };
 
-const updateProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updatedProduct = await productService.updateProduct(id, req.body);
-    if (!updatedProduct) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-    res.json(updatedProduct);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-// detail product
+/**
+ * @desc    Lấy sản phẩm theo ID
+ * @route   GET /api/products/:id
+ * @access  Public
+ */
 const getProductById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await productService.getProductById(id);
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+    const product = await productService.getById(req.params.id);
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
     }
-    res.json(product);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
 };
 
-module.exports = { createProduct, getProducts, updateProduct, getProductById };
+/**
+ * @desc    Cập nhật sản phẩm
+ * @route   PUT /api/products/:id
+ * @access  Private/Admin
+ */
+const updateProduct = async (req, res) => {
+  try {
+    const updatedProduct = await productService.update(req.params.id, req.body);
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+    }
+    res.json(updatedProduct);
+  } catch (error) {
+    res.status(400).json({ message: 'Không thể cập nhật sản phẩm', error: error.message });
+  }
+};
+
+/**
+ * @desc    Xóa sản phẩm
+ * @route   DELETE /api/products/:id
+ * @access  Private/Admin
+ */
+const deleteProduct = async (req, res) => {
+  try {
+    const deletedProduct = await productService.deleteById(req.params.id);
+    if (!deletedProduct) {
+      return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
+    }
+    res.json({ message: 'Sản phẩm đã được xóa' });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
+  }
+};
+
+module.exports = { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct };

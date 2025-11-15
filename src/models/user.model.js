@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
     createdAt: { type: Date, default: Date.now },
     avatarUrl: { type: String, required: false },
     isActive: { type: Boolean, default: true },
+    bio: { type: String }, // Mô tả hoặc tiểu sử về người dùng
   },
   { timestamps: true }
 );

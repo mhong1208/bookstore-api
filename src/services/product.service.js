@@ -1,54 +1,39 @@
-// src/services/product.service.js
-const Product = require("../models/product.model");
+const Product = require('../models/product.model');
 
-const createProduct = async (data) => {
-  return await Product.create(data);
+const create = async (productData) => {
+  const product = new Product(productData);
+  return await product.save();
 };
 
-// options: { name, categories }
-const getProducts = async (pageIndex = 1, pageSize = 10, options = {}) => {
-  const skip = (pageIndex - 1) * pageSize;
+const getAll = async (page = 1, pageSize = 10, keyword = '') => {
+  const searchCondition = keyword
+    ? {
+        title: {
+          $regex: keyword,
+          $options: 'i',
+        },
+      }
+    : {};
 
-  // Build query filters
-  const query = {};
-  if (options.name) {
-    // case-insensitive partial match on title (name)
-    query.title = { $regex: options.name, $options: "i" };
-  }
-  if (options.categories) {
-    // accept comma-separated ids or an array
-    let cats = options.categories;
-    if (typeof cats === "string") {
-      cats = cats.split(",").map((c) => c.trim()).filter(Boolean);
-    }
-    if (Array.isArray(cats) && cats.length > 0) {
-      query.categories = { $in: cats };
-    }
-  }
-
-  const products = await Product.find(query)
-    .skip(skip)
+  const count = await Product.countDocuments(searchCondition);
+  const products = await Product.find(searchCondition)
+    .populate('categories')
     .limit(pageSize)
-    .sort({ createdAt: -1 })
-    .populate("categories"); // populate categories
+    .skip(pageSize * (page - 1));
 
-  const total = await Product.countDocuments(query);
-  return {
-    data: products,
-    pageIndex,
-    pageSize,
-    totalPages: Math.ceil(total / pageSize),
-    totalItems: total,
-  };
+  return { products, page, pages: Math.ceil(count / pageSize) };
 };
 
-const updateProduct = async (id, data) => {
-  return await Product.findByIdAndUpdate(id, data, { new: true, runValidators: true }).populate("categories");
+const getById = async (id) => {
+  return await Product.findById(id).populate('categories');
 };
 
-const getProductById = async (id) => {
-  return await Product.findById(id).populate("categories");
+const update = async (id, updateData) => {
+  return await Product.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 };
 
+const deleteById = async (id) => {
+  return await Product.findByIdAndDelete(id);
+};
 
-module.exports = { createProduct, getProducts,updateProduct, getProductById };
+module.exports = { create, getAll, getById, update, deleteById };

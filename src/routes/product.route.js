@@ -1,11 +1,13 @@
-// src/routes/product.route.js
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const productController = require("../controllers/product.controller");
+const {
+  createProduct,
+  getAllProducts,
+  getProductById,
+} = require('../controllers/product.controller');
 
-router.post("/", productController.createProduct);
-router.get("/", productController.getProducts);
-router.put("/:id", productController.updateProduct);
-router.get("/:id", productController.getProductById);
+router.route('/').post(createProduct).get(getAllProducts);
+router.route('/:id').get(getProductById);
+// Thêm .put(updateProduct).delete(deleteProduct) khi hoàn thiện
 
 module.exports = router;
