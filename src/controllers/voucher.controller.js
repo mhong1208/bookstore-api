@@ -21,8 +21,11 @@ const createVoucher = async (req, res) => {
  */
 const getAllVouchers = async (req, res) => {
   try {
-    const vouchers = await voucherService.getAll();
-    res.json(vouchers);
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const { status } = req.query;
+    const result = await voucherService.getAll(page, pageSize, { status });
+    res.json(result);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
@@ -73,7 +76,7 @@ const deleteVoucher = async (req, res) => {
     if (!voucher) {
       return res.status(404).json({ message: 'Không tìm thấy voucher' });
     }
-    res.json({ message: 'Voucher đã được xóa thành công' });
+    res.json({ message: 'Voucher đã được vô hiệu hóa' });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }

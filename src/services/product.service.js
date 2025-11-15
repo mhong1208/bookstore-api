@@ -5,15 +5,18 @@ const create = async (productData) => {
   return await product.save();
 };
 
-const getAll = async (page = 1, pageSize = 10, keyword = '') => {
-  const searchCondition = keyword
-    ? {
-        title: {
-          $regex: keyword,
-          $options: 'i',
-        },
-      }
-    : {};
+const getAll = async (page = 1, pageSize = 10, options = {}) => {
+  const { keyword, status } = options;
+  const searchCondition = {};
+
+  // Mặc định chỉ lấy sản phẩm đang hoạt động, trừ khi có yêu cầu lấy tất cả
+  // if (status !== 'all') {
+  //   searchCondition.isActive = true;
+  // }
+
+  if (keyword) {
+    searchCondition.title = { $regex: keyword, $options: 'i' };
+  }
 
   const count = await Product.countDocuments(searchCondition);
   const products = await Product.find(searchCondition)
@@ -21,11 +24,17 @@ const getAll = async (page = 1, pageSize = 10, keyword = '') => {
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
-  return { products, page, pages: Math.ceil(count / pageSize) };
+  return {
+    data: products,
+    page,
+    pageSize,
+    totalPages: Math.ceil(count / pageSize),
+    totalItems: count,
+  };
 };
 
 const getById = async (id) => {
-  return await Product.findById(id).populate('categories');
+  return await Product.findOne({ _id: id, isActive: true }).populate('categories');
 };
 
 const update = async (id, updateData) => {
@@ -33,7 +42,8 @@ const update = async (id, updateData) => {
 };
 
 const deleteById = async (id) => {
-  return await Product.findByIdAndDelete(id);
+  // Chuyển sang soft delete
+  return await Product.findByIdAndUpdate(id, { isActive: false }, { new: true });
 };
 
 module.exports = { create, getAll, getById, update, deleteById };

@@ -43,8 +43,31 @@ const loginUser = async (req, res) => {
   }
 };
 
+/**
+ * @desc    Cập nhật trạng thái người dùng (Admin)
+ * @route   PUT /api/users/:id/status
+ * @access  Private/Admin
+ */
+const updateUserStatus = async (req, res) => {
+  try {
+    const { isActive } = req.body;
+    if (typeof isActive !== 'boolean') {
+      return res.status(400).json({ message: 'Trường isActive là bắt buộc và phải là true hoặc false.' });
+    }
+
+    const user = await userService.updateStatus(req.params.id, isActive);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+    res.json({ message: `Trạng thái người dùng đã được cập nhật thành công.`, data: user });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   registerUser,
-  loginUser
+  loginUser,
+  updateUserStatus,
 };

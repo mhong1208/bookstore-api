@@ -12,6 +12,7 @@ const productSchema = new mongoose.Schema(
     publishedDate: { type: Date },
     coverImage: { type: String },
     categories: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

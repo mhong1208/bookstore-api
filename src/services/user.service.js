@@ -38,8 +38,8 @@ const register = async (data) => {
 };
 
 const login = async (email, password) => {
-  const user = await User.findOne({ email });
-  if (!user) {
+  const user = await User.findOne({ email: email });
+  if (!user || !user.isActive) { // Thêm kiểm tra user.isActive
     return { error: true, message: "Email hoặc mật khẩu không chính xác" };
   }
 
@@ -69,8 +69,19 @@ const login = async (email, password) => {
   };
 };
 
+/**
+ * Cập nhật trạng thái hoạt động của người dùng
+ * @param {string} userId - ID của người dùng
+ * @param {boolean} isActive - Trạng thái mới
+ * @returns {Promise<User>}
+ */
+const updateStatus = async (userId, isActive) => {
+  return await User.findByIdAndUpdate(userId, { isActive }, { new: true });
+};
+
 module.exports = {
   getAll,
   register,
   login,
+  updateStatus,
 };

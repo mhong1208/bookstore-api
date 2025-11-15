@@ -21,10 +21,10 @@ const createProduct = async (req, res) => {
  */
 const getAllProducts = async (req, res) => {
   try {
-    const page = Number(req.query.pageNumber) || 1;
-    const pageSize = Number(req.query.pageSize) || 10;
-    const keyword = req.query.keyword || '';
-    const result = await productService.getAll(page, pageSize, keyword);
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const { keyword, status } = req.query;
+    const result = await productService.getAll(page, pageSize, { keyword, status });
     res.json(result);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
@@ -77,7 +77,7 @@ const deleteProduct = async (req, res) => {
     if (!deletedProduct) {
       return res.status(404).json({ message: 'Không tìm thấy sản phẩm' });
     }
-    res.json({ message: 'Sản phẩm đã được xóa' });
+    res.json({ message: 'Sản phẩm đã được vô hiệu hóa' });
   } catch (error) {
     res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });
   }
