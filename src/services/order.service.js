@@ -3,7 +3,17 @@ const OrderItem = require('../models/order-item.model');
 const Product = require('../models/product.model');
 const Voucher = require('../models/voucher.model');
 const createOrder = async (orderData, userId) => {
-  const { orderItems, shippingAddress, notes, voucherCode, paymentMethod, shippingMethod } = orderData;
+  const {
+    orderItems,
+    shippingAddress,
+    notes,
+    voucherCode,
+    paymentMethod,
+    shippingMethod,
+    subtotal,
+    totalPrice,
+    discountAmount,
+  } = orderData;
 
   if (!orderItems || orderItems.length === 0) {
     throw new Error('Không có sản phẩm nào trong đơn hàng');
@@ -19,9 +29,9 @@ const createOrder = async (orderData, userId) => {
       const orderItem = new OrderItem({
         book: item.book,
         quantity: item.quantity,
-        price: product.price, 
-        title: item.title,  
-        image: item.image, 
+        price: item.price, 
+        title: item.title,
+        image: item.image,
       });
 
       product.stock -= item.quantity;
@@ -31,45 +41,33 @@ const createOrder = async (orderData, userId) => {
     })
   );
 
-  const subtotal = createdOrderItems.reduce((acc, item) => acc + item.quantity * item.price, 0);
-  let discountAmount = 0;
-  let finalPrice = subtotal;
-  let appliedVoucher = null;
-
-  // 3. Xử lý Voucher (nếu có)
+  // 2. Xử lý voucher
+  let voucherId = null;
   if (voucherCode) {
-    try {
-      const voucherResult = await voucherService.apply(voucherCode, subtotal);
-      discountAmount = voucherResult.discountAmount;
-      finalPrice = voucherResult.finalPrice;
-
-      const voucher = await Voucher.findOne({ code: voucherCode });
-      if (voucher) {
-        appliedVoucher = voucher._id;
-        voucher.timesUsed += 1;
-        await voucher.save();
-      }
-    } catch (error) {
-      console.warn(`Voucher warning for order creation: ${error.message}`);
+    const voucher = await Voucher.findOne({ code: voucherCode });
+    if (voucher) {
+      voucherId = voucher._id;
+      voucher.timesUsed += 1;
+      await voucher.save();
     }
   }
 
+  // 3. Tạo đơn hàng
   const order = new Order({
     user: userId,
     orderItems: createdOrderItems.map((item) => item._id),
     shippingAddress,
-    paymentMethod, 
+    paymentMethod,
     shippingMethod,
     subtotal,
     discountAmount,
-    totalPrice: finalPrice,
-    voucher: appliedVoucher,
+    totalPrice,
+    voucher: voucherId, // dùng _id của voucher
     notes,
   });
 
   return await order.save();
 };
-
 
 const getOrdersByUser = async (userId, page = 1, pageSize = 10) => {
   const skip = (page - 1) * pageSize;

@@ -21,6 +21,16 @@ const orderSchema = new Schema(
 
     shippingAddress:{ type: String, required: true },
 
+    paymentMethod: {
+      type: String,
+      required: true,
+    },
+
+    shippingMethod: {
+      type: String,
+      required: true,
+    },
+
     subtotal: {
       type: Number,
       required: true,

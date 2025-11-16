@@ -7,9 +7,9 @@ const orderService = require('../services/order.service');
  */
 const createOrder = async (req, res) => {
   try {
-    const { orderItems, shippingAddress, notes, voucherCode } = req.body;
+    const { orderItems, shippingAddress, notes, voucherCode, paymentMethod, shippingMethod, subtotal , totalPrice, discountAmount} = req.body;
     const createdOrder = await orderService.createOrder(
-      { orderItems, shippingAddress, notes, voucherCode },
+      { orderItems, shippingAddress, notes, voucherCode, paymentMethod, shippingMethod, subtotal , totalPrice, discountAmount},
       req.user.id
     );
     res.status(201).json(createdOrder);
