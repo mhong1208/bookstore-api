@@ -7,7 +7,11 @@ const orderService = require('../services/order.service');
  */
 const createOrder = async (req, res) => {
   try {
-    const createdOrder = await orderService.createOrder(req.body, req.user.id);
+    const { orderItems, shippingAddress, notes, voucherCode } = req.body;
+    const createdOrder = await orderService.createOrder(
+      { orderItems, shippingAddress, notes, voucherCode },
+      req.user.id
+    );
     res.status(201).json(createdOrder);
   } catch (error) {
     res.status(400).json({ message: 'Không thể tạo đơn hàng', error: error.message });

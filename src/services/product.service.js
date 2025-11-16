@@ -6,7 +6,7 @@ const create = async (productData) => {
 };
 
 const getAll = async (page = 1, pageSize = 10, options = {}) => {
-  const { keyword, status } = options;
+  const { keyword, status, category } = options;
   const searchCondition = {};
 
   // Mặc định chỉ lấy sản phẩm đang hoạt động, trừ khi có yêu cầu lấy tất cả
@@ -14,8 +14,12 @@ const getAll = async (page = 1, pageSize = 10, options = {}) => {
   //   searchCondition.isActive = true;
   // }
 
-  if (keyword) {
+  if (keyword && keyword.trim() !== '') {
     searchCondition.title = { $regex: keyword, $options: 'i' };
+  }
+
+  if (category && category.trim() !== '') {
+    searchCondition.categories = category;
   }
 
   const count = await Product.countDocuments(searchCondition);

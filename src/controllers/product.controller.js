@@ -21,10 +21,12 @@ const createProduct = async (req, res) => {
  */
 const getAllProducts = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
+    const page = parseInt(req.query.pageIndex) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
-    const { keyword, status } = req.query;
-    const result = await productService.getAll(page, pageSize, { keyword, status });
+    const { status } = req.query;
+    const keyword = req.query.name;
+    const category = req.query.categoryId;
+    const result = await productService.getAll(page, pageSize, { keyword, status, category });
     res.json(result);
   } catch (error) {
     res.status(500).json({ message: 'Lỗi máy chủ', error: error.message });

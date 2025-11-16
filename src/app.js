@@ -9,7 +9,6 @@ const userRoutes = require("./routes/user.route");
 const categoryRoutes = require("./routes/category.route");
 const productRoutes = require("./routes/product.route");
 const orderRoutes = require("./routes/order.route");
-const uploadRoutes = require("./routes/upload.route");
 const voucherRoutes = require("./routes/voucher.route");
 
 
@@ -27,7 +26,6 @@ app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/upload", uploadRoutes);
 app.use("/api/vouchers", voucherRoutes)
 
 app.get("/", (req, res) => {

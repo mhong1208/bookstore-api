@@ -49,4 +49,41 @@ const findByCode = async (code) => {
   });
 };
 
-module.exports = { create, getAll, getById, update, deleteById, findByCode };
+
+const apply = async (code, orderAmount) => {
+  const voucher = await Voucher.findOne({
+    code: code,
+    isActive: true,
+    expiresAt: { $gt: new Date() },
+  });
+
+  if (!voucher) {
+    throw new Error('Voucher không tồn tại, đã hết hạn hoặc đã bị vô hiệu hóa.');
+  }
+
+  if (voucher.maxUsage !== null && voucher.timesUsed >= voucher.maxUsage) {
+    throw new Error('Voucher đã hết lượt sử dụng.');
+  }
+
+  if (orderAmount < voucher.minOrderAmount) {
+    throw new Error(`Giá trị đơn hàng tối thiểu để sử dụng voucher này là ${voucher.minOrderAmount}.`);
+  }
+
+  let discountAmount = 0;
+  if (voucher.discountType === 'fixed') {
+    discountAmount = voucher.discountValue;
+  } else {
+    discountAmount = (orderAmount * voucher.discountValue) / 100;
+  }
+
+  const finalPrice = Math.max(0, orderAmount - discountAmount);
+
+  return {
+    message: 'Áp dụng voucher thành công!',
+    discountAmount,
+    finalPrice,
+    voucherCode: voucher.code,
+  };
+};
+
+module.exports = { create, getAll, getById, update, deleteById, findByCode, apply };

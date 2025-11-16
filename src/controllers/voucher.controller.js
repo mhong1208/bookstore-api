@@ -82,4 +82,15 @@ const deleteVoucher = async (req, res) => {
   }
 };
 
-module.exports = { createVoucher, getAllVouchers, getVoucherById, updateVoucher, deleteVoucher };
+const applyVoucher = async (req, res) => {
+  try {
+    const { voucherCode, orderAmount } = req.body;
+    const result = await voucherService.apply(voucherCode, orderAmount);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ message: 'Voucher không hợp lệ hoặc không thể áp dụng', error: error.message });
+  }
+};
+
+
+module.exports = { createVoucher, getAllVouchers, getVoucherById, updateVoucher, deleteVoucher, applyVoucher };
