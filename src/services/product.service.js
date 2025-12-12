@@ -6,12 +6,16 @@ const create = async (productData) => {
 };
 
 const getAll = async (page = 1, pageSize = 10, options = {}) => {
-  const { keyword, status, category } = options;
+  const { keyword, status, category, isActive } = options;
   const searchCondition = {};
+
+  if (isActive) {
+    searchCondition.isActive = isActive;
+  }
 
   // Mặc định chỉ lấy sản phẩm đang hoạt động, trừ khi có yêu cầu lấy tất cả
   // if (status !== 'all') {
-  //   searchCondition.isActive = true;
+  //   searchCondition.isActive = status;
   // }
 
   if (keyword && keyword.trim() !== '') {

@@ -19,7 +19,7 @@ const orderSchema = new Schema(
       },
     ],
 
-    shippingAddress:{ type: String, required: true },
+    shippingAddress: { type: String, required: true },
 
     paymentMethod: {
       type: String,
@@ -59,7 +59,7 @@ const orderSchema = new Schema(
       type: Date,
     },
 
-  
+
     status: {
       type: String,
       required: true,
